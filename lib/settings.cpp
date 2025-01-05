@@ -618,6 +618,22 @@ static const std::set<std::string> misracpp2023Checkers{
     "virtualCallInConstructor"
 };
 
+void Settings::loadFunctions() 
+{
+    if (!analyzeFunctionFile.empty()) {
+        std::ifstream f(analyzeFunctionFile);
+        std::string line;
+        while (std::getline(f, line)) {
+            functionsNeedAnalyze.insert(line);
+        }
+        f.close();
+    }
+}
+
+bool Settings::shouldAnalyze(std::string name) const {
+    return analyzeFunctionFile.empty() || functionsNeedAnalyze.count(name);
+}
+
 bool Settings::isPremiumEnabled(const char id[]) const
 {
     if (premiumArgs.find("autosar") != std::string::npos && autosarCheckers.count(id))

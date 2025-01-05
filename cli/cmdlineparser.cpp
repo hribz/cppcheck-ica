@@ -1404,6 +1404,29 @@ CmdLineParser::Result CmdLineParser::parseFromArgs(int argc, const char* const a
                 mSettings.outputFormat = Settings::OutputFormat::xml;
             }
 
+            // Only analyze functions in the file.
+            else if (std::strncmp(argv[i], "--analyze-function-file=", 24) == 0) {
+                std::string filename = argv[i]+24;
+                std::ifstream f(filename);
+                if (!f.is_open()) {
+                    std::string message("couldn't open the file: \"");
+                    message += filename;
+                    message += "\".";
+                    if (std::count(filename.cbegin(), filename.cend(), ',') > 0 ||
+                        std::count(filename.cbegin(), filename.cend(), '.') > 1) {
+                        // If user tried to pass multiple files (we can only guess that)
+                        // e.g. like this: --analyze-function-file=a.txt,b.txt
+                        // print more detailed error message to tell user how he can solve the problem
+                        message += "\nIf you want to pass two files, you can do it e.g. like this:";
+                        message += "\n    cppcheck --analyze-function-file=a.txt --analyze-function-file=b.txt file.cpp";
+                    }
+
+                    mLogger.printError(message);
+                    return Result::Fail;
+                }
+                mSettings.analyzeFunctionFile = filename;
+            }
+
             else {
                 std::string message("unrecognized command line option: \"");
                 message += argv[i];

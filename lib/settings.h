@@ -240,6 +240,13 @@ public:
     /** @brief Force checking the files with "too many" configurations (--force). */
     bool force{};
 
+    /** @brief Only analyze functions provided in --analyze-function-file */
+    std::string analyzeFunctionFile;
+    std::unordered_set<std::string> functionsNeedAnalyze;
+
+    void loadFunctions();
+    bool shouldAnalyze(std::string name) const;
+
     /** @brief List of include paths, e.g. "my/includes/" which should be used
         for finding include files inside source files. (-I) */
     std::list<std::string> includePaths;

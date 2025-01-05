@@ -352,6 +352,7 @@ int CppCheckExecutor::check(int argc, const char* const argv[])
         return EXIT_SUCCESS;
     }
 
+    settings.loadFunctions();
     settings.loadSummaries();
 
     mFiles = parser.getFiles();
