@@ -245,7 +245,7 @@ public:
     std::unordered_set<std::string> functionsNeedAnalyze;
 
     void loadFunctions();
-    bool shouldAnalyze(std::string name) const;
+    bool shouldNotAnalyze(std::string name) const;
 
     /** @brief List of include paths, e.g. "my/includes/" which should be used
         for finding include files inside source files. (-I) */

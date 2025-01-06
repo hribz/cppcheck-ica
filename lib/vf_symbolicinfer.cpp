@@ -21,6 +21,7 @@
 #include "astutils.h"
 #include "infer.h"
 #include "mathlib.h"
+#include "settings.h"
 #include "symboldatabase.h"
 #include "token.h"
 #include "valueptr.h"
@@ -56,6 +57,8 @@ namespace ValueFlow
     void valueFlowSymbolicInfer(const SymbolDatabase& symboldatabase, const Settings& settings)
     {
         for (const Scope* scope : symboldatabase.functionScopes) {
+            if (scope->function && settings.shouldNotAnalyze(scope->function->name()))
+                continue;
             for (auto* tok = const_cast<Token*>(scope->bodyStart); tok != scope->bodyEnd; tok = tok->next()) {
                 if (!Token::Match(tok, "-|%comp%"))
                     continue;

@@ -287,6 +287,8 @@ void CheckNullPointer::nullPointerByDeRefAndCheck()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         auto pred = [printInconclusive](const Token* tok) -> bool {
             if (!tok)
                 return false;
@@ -346,6 +348,8 @@ void CheckNullPointer::nullConstantDereference()
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
 
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         if (scope->function == nullptr || !scope->function->hasBody()) // We only look for functions with a body
             continue;
 
@@ -477,6 +481,8 @@ void CheckNullPointer::arithmetic()
     logChecker("CheckNullPointer::arithmetic");
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (!Token::Match(tok, "-|+|+=|-=|++|--"))
                 continue;

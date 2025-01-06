@@ -1147,6 +1147,8 @@ void CheckClass::initializationListUsage()
     logChecker("CheckClass::initializationListUsage"); // performance
 
     for (const Scope *scope : mSymbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         // Check every constructor
         if (!scope->function || !scope->function->isConstructor())
             continue;
@@ -1361,6 +1363,8 @@ void CheckClass::checkMemset()
     logChecker("CheckClass::checkMemset");
     const bool printWarnings = mSettings->severity.isEnabled(Severity::warning);
     for (const Scope *scope : mSymbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart; tok && tok != scope->bodyEnd; tok = tok->next()) {
             if (Token::Match(tok, "memset|memcpy|memmove (")) {
                 const Token* arg1 = tok->tokAt(2);
@@ -2760,6 +2764,8 @@ void CheckClass::checkSelfInitialization()
     logChecker("CheckClass::checkSelfInitialization");
 
     for (const Scope *scope : mSymbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         const Function* function = scope->function;
         if (!function || !function->isConstructor())
             continue;
@@ -2801,6 +2807,8 @@ void CheckClass::checkVirtualFunctionCallInConstructor()
     logChecker("CheckClass::checkVirtualFunctionCallInConstructor"); // warning
     std::map<const Function *, std::list<const Token *>> virtualFunctionCallsMap;
     for (const Scope *scope : mSymbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         if (scope->function == nullptr || !scope->function->hasBody() ||
             !(scope->function->isConstructor() ||
               scope->function->isDestructor()))

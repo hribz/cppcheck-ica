@@ -54,6 +54,8 @@ void CheckExceptionSafety::destructors()
 
     // Perform check..
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         const Function * function = scope->function;
         if (!function)
             continue;
@@ -104,6 +106,8 @@ void CheckExceptionSafety::deallocThrow()
     // Deallocate a global/member pointer and then throw exception
     // the pointer will be a dead pointer
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             // only looking for delete now
             if (tok->str() != "delete")
@@ -290,6 +294,8 @@ void CheckExceptionSafety::nothrowThrows()
     const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
 
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         const Function* function = scope->function;
         if (!function)
             continue;
@@ -336,6 +342,8 @@ void CheckExceptionSafety::unhandledExceptionSpecification()
     const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
 
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         // only check functions without exception specification
         if (scope->function && !scope->function->isThrow() && !mSettings->library.isentrypoint(scope->className)) {
             for (const Token *tok = scope->function->functionScope->bodyStart->next();
@@ -373,6 +381,8 @@ void CheckExceptionSafety::rethrowNoCurrentException()
     logChecker("CheckExceptionSafety::rethrowNoCurrentException");
     const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         const Function* function = scope->function;
         if (!function)
             continue;

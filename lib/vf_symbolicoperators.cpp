@@ -21,6 +21,7 @@
 #include "astutils.h"
 #include "config.h"
 #include "infer.h"
+#include "settings.h"
 #include "symboldatabase.h"
 #include "token.h"
 #include "vfvalue.h"
@@ -69,6 +70,8 @@ namespace ValueFlow
     void analyzeSymbolicOperators(const SymbolDatabase& symboldatabase, const Settings& settings)
     {
         for (const Scope* scope : symboldatabase.functionScopes) {
+            if (scope->function && settings.shouldNotAnalyze(scope->function->name()))
+                continue;
             for (auto* tok = const_cast<Token*>(scope->bodyStart); tok != scope->bodyEnd; tok = tok->next()) {
                 if (tok->hasKnownIntValue())
                     continue;

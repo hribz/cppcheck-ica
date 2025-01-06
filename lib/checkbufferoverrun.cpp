@@ -634,6 +634,8 @@ void CheckBufferOverrun::bufferOverflow()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
             if (!Token::Match(tok, "%name% (") || Token::simpleMatch(tok, ") {"))
                 continue;
@@ -701,6 +703,8 @@ void CheckBufferOverrun::arrayIndexThenCheck()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * const scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart; tok && tok != scope->bodyEnd; tok = tok->next()) {
             if (Token::simpleMatch(tok, "sizeof (")) {
                 tok = tok->linkAt(1);
@@ -759,6 +763,8 @@ void CheckBufferOverrun::stringNotZeroTerminated()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * const scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart; tok && tok != scope->bodyEnd; tok = tok->next()) {
             if (!Token::simpleMatch(tok, "strncpy ("))
                 continue;
@@ -825,6 +831,8 @@ void CheckBufferOverrun::argumentSize()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * const scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
             if (!tok->function() || !Token::Match(tok, "%name% ("))
                 continue;
@@ -1054,6 +1062,8 @@ void CheckBufferOverrun::objectIndex()
     logChecker("CheckBufferOverrun::objectIndex");
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope *functionScope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(functionScope))
+            continue;
         for (const Token *tok = functionScope->bodyStart; tok != functionScope->bodyEnd; tok = tok->next()) {
             if (!Token::simpleMatch(tok, "["))
                 continue;
@@ -1177,6 +1187,8 @@ void CheckBufferOverrun::negativeArraySize()
     }
 
     for (const Scope* functionScope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(functionScope))
+            continue;
         for (const Token* tok = functionScope->bodyStart; tok != functionScope->bodyEnd; tok = tok->next()) {
             if (!tok->isKeyword() || tok->str() != "new" || !tok->astOperand1() || tok->astOperand1()->str() != "[")
                 continue;

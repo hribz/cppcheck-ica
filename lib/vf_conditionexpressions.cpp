@@ -130,6 +130,9 @@ namespace ValueFlow
             if (settings.daca && !settings.vfOptions.doConditionExpressionAnalysis)
                 continue;
 
+            if (scope->function && settings.shouldNotAnalyze(scope->function->name()))
+                continue;
+
             for (auto* tok = const_cast<Token*>(scope->bodyStart); tok != scope->bodyEnd; tok = tok->next()) {
                 if (!Token::simpleMatch(tok, "if ("))
                     continue;

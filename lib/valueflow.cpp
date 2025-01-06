@@ -2366,6 +2366,8 @@ static void valueFlowAfterMove(const TokenList& tokenlist, const SymbolDatabase&
     for (const Scope * scope : symboldatabase.functionScopes) {
         if (!scope)
             continue;
+        if (scope->function && settings.shouldNotAnalyze(scope->function->name()))
+            continue;
         const Token * start = scope->bodyStart;
         if (scope->function) {
             const Token * memberInitializationTok = scope->function->constructorMemberInitialization();
@@ -2476,6 +2478,8 @@ static std::set<nonneg int> getVarIds(const Token* tok)
 static void valueFlowSymbolic(const TokenList& tokenlist, const SymbolDatabase& symboldatabase, ErrorLogger& errorLogger, const Settings& settings)
 {
     for (const Scope* scope : symboldatabase.functionScopes) {
+        if (scope->function && settings.shouldNotAnalyze(scope->function->name()))
+            continue;
         for (auto* tok = const_cast<Token*>(scope->bodyStart); tok != scope->bodyEnd; tok = tok->next()) {
             if (!Token::simpleMatch(tok, "="))
                 continue;
@@ -2853,6 +2857,8 @@ static void valueFlowAfterAssign(TokenList &tokenlist,
                                  const std::set<const Scope*>& skippedFunctions)
 {
     for (const Scope * scope : symboldatabase.functionScopes) {
+        if (scope->function && settings.shouldNotAnalyze(scope->function->name()))
+            continue;
         if (skippedFunctions.count(scope))
             continue;
         std::unordered_map<nonneg int, std::unordered_set<nonneg int>> backAssigns;
@@ -2994,6 +3000,8 @@ static void valueFlowAfterSwap(const TokenList& tokenlist,
                                const Settings& settings)
 {
     for (const Scope* scope : symboldatabase.functionScopes) {
+        if (scope->function && settings.shouldNotAnalyze(scope->function->name()))
+            continue;
         for (auto* tok = const_cast<Token*>(scope->bodyStart); tok != scope->bodyEnd; tok = tok->next()) {
             if (!Token::simpleMatch(tok, "swap ("))
                 continue;
@@ -3169,6 +3177,8 @@ struct ConditionHandler {
                            const std::function<void(const Condition& cond, Token* tok, const Scope* scope)>& f) const
     {
         for (const Scope *scope : symboldatabase.functionScopes) {
+            if (scope->function && settings.shouldNotAnalyze(scope->function->name()))
+                continue;
             if (skippedFunctions.count(scope))
                 continue;
             for (auto *tok = const_cast<Token *>(scope->bodyStart); tok != scope->bodyEnd; tok = tok->next()) {
@@ -4087,6 +4097,8 @@ static void valueFlowFunctionDefaultParameter(const TokenList& tokenlist, const 
         return;
 
     for (const Scope* scope : symboldatabase.functionScopes) {
+        if (scope->function && settings.shouldNotAnalyze(scope->function->name()))
+            continue;
         const Function* function = scope->function;
         if (!function)
             continue;
@@ -4773,6 +4785,9 @@ static void valueFlowContainerSize(const TokenList& tokenlist,
             continue;
         if (skippedFunctions.count(getFunctionScope(var->scope())))
             continue;
+        auto *varFunc = getFunctionScope(var->scope())->function;
+        if (varFunc && settings.shouldNotAnalyze(varFunc->name()))
+            continue;
 
         bool known = true;
         int size = 0;
@@ -4848,6 +4863,8 @@ static void valueFlowContainerSize(const TokenList& tokenlist,
 
     // after assignment
     for (const Scope *functionScope : symboldatabase.functionScopes) {
+        if (functionScope->function && settings.shouldNotAnalyze(functionScope->function->name()))
+            continue;
         for (auto* tok = const_cast<Token*>(functionScope->bodyStart); tok != functionScope->bodyEnd; tok = tok->next()) {
             if (Token::Match(tok, "%name%|;|{|} %var% = %str% ;")) {
                 Token* containerTok = tok->next();
@@ -5079,6 +5096,8 @@ static void valueFlowDynamicBufferSize(const TokenList& tokenlist, const SymbolD
     };
 
     for (const Scope *functionScope : symboldatabase.functionScopes) {
+        if (functionScope->function && settings.shouldNotAnalyze(functionScope->function->name()))
+            continue;
         for (const Token *tok = functionScope->bodyStart; tok != functionScope->bodyEnd; tok = tok->next()) {
             if (!Token::Match(tok, "[;{}] %var% ="))
                 continue;
@@ -5116,6 +5135,8 @@ static void valueFlowSafeFunctions(const TokenList& tokenlist, const SymbolDatab
             continue;
         const Function *function = functionScope->function;
         if (!function)
+            continue;
+        if (functionScope->function && settings.shouldNotAnalyze(functionScope->function->name()))
             continue;
 
         const bool safe = function->isSafe(settings);

@@ -1181,6 +1181,8 @@ void CheckUnusedVar::checkFunctionVariableUsage()
 
     // only check functions
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         // Bailout when there are lambdas or inline functions
         // TODO: Handle lambdas and inline functions properly
         const Token* lambdaOrInlineStart{};

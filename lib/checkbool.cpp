@@ -57,6 +57,8 @@ void CheckBool::checkIncrementBoolean()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (astIsBool(tok) && tok->astParent() && tok->astParent()->str() == "++") {
                 incrementBooleanError(tok);
@@ -102,6 +104,8 @@ void CheckBool::checkBitwiseOnBoolean()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (tok->isBinaryOp()) {
                 bool isCompound{};
@@ -159,6 +163,8 @@ void CheckBool::checkComparisonOfBoolWithInt()
 
     const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (!tok->isComparisonOp() || !tok->isBinaryOp())
                 continue;
@@ -223,6 +229,8 @@ void CheckBool::checkComparisonOfFuncReturningBool()
     };
 
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (!tok->isComparisonOp() || tok->str() == "==" || tok->str() == "!=")
                 continue;
@@ -280,6 +288,8 @@ void CheckBool::checkComparisonOfBoolWithBool()
     const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
 
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (!tok->isComparisonOp() || tok->str() == "==" || tok->str() == "!=")
                 continue;
@@ -323,6 +333,8 @@ void CheckBool::checkAssignBoolToPointer()
     logChecker("CheckBool::checkAssignBoolToPointer");
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
             if (tok->str() == "=" && astIsPointer(tok->astOperand1()) && astIsBool(tok->astOperand2())) {
                 assignBoolToPointerError(tok);
@@ -349,6 +361,8 @@ void CheckBool::checkComparisonOfBoolExpressionWithInt()
     const SymbolDatabase* symbolDatabase = mTokenizer->getSymbolDatabase();
 
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (!tok->isComparisonOp())
                 continue;
@@ -471,6 +485,8 @@ void CheckBool::checkAssignBoolToFloat()
     logChecker("CheckBool::checkAssignBoolToFloat"); // style,c++
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
             if (tok->str() == "=" && astIsFloat(tok->astOperand1(), false) && astIsBool(tok->astOperand2())) {
                 assignBoolToFloatError(tok);
@@ -495,6 +511,8 @@ void CheckBool::returnValueOfFunctionReturningBool()
     const SymbolDatabase * const symbolDatabase = mTokenizer->getSymbolDatabase();
 
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         if (!(scope->function && Token::Match(scope->function->retDef, "bool|_Bool")))
             continue;
 

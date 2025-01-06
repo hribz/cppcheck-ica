@@ -178,6 +178,8 @@ void CheckLeakAutoVar::check()
 
     // Check function scopes
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         if (scope->hasInlineOrLambdaFunction())
             continue;
 

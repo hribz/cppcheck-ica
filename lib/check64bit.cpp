@@ -51,6 +51,8 @@ void Check64BitPortability::pointerassignment()
 
     // Check return values
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         if (scope->function == nullptr || !scope->function->hasBody()) // We only look for functions with a body
             continue;
 
@@ -89,6 +91,8 @@ void Check64BitPortability::pointerassignment()
 
     // Check assignments
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart; tok && tok != scope->bodyEnd; tok = tok->next()) {
             if (tok->str() != "=")
                 continue;

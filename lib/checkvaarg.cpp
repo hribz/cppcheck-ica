@@ -60,6 +60,8 @@ void CheckVaarg::va_start_argument()
         const Function* function = scope->function;
         if (!function)
             continue;
+        if (shouldNotAnalyze(function))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (!tok->scope()->isExecutable())
                 tok = tok->scope()->bodyEnd;

@@ -131,3 +131,14 @@ void Check::logChecker(const char id[])
     reportError(nullptr, Severity::internal, "logChecker", id);
 }
 
+bool Check::shouldNotAnalyze(std::string name) {
+    return mSettings->shouldNotAnalyze(std::move(name));
+}
+
+bool Check::shouldNotAnalyze(const Function* func) {
+    return shouldNotAnalyze(func->name());
+}
+
+bool Check::shouldNotAnalyze(const Scope* scope) {
+    return scope->function != nullptr && mSettings->shouldNotAnalyze(scope->function->name());
+}

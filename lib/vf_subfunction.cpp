@@ -177,6 +177,8 @@ namespace ValueFlow
             const Function* function = scope->function;
             if (!function)
                 continue;
+            if (settings.shouldNotAnalyze(function->name()))
+                continue;
             for (auto* tok = const_cast<Token*>(scope->bodyStart); tok != scope->bodyEnd; tok = tok->next()) {
                 if (tok->isKeyword() || !Token::Match(tok, "%name% ("))
                     continue;

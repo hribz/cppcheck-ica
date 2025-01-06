@@ -217,6 +217,8 @@ void CheckAutoVariables::assignFunctionArg()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart; tok && tok != scope->bodyEnd; tok = tok->next()) {
             // TODO: What happens if this is removed?
             if (tok->astParent())
@@ -268,6 +270,8 @@ void CheckAutoVariables::autoVariables()
     const bool printInconclusive = mSettings->certainty.isEnabled(Certainty::inconclusive);
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart; tok && tok != scope->bodyEnd; tok = tok->next()) {
             // Skip lambda..
             if (const Token *lambdaEndToken = findLambdaEndToken(tok)) {
@@ -668,6 +672,8 @@ void CheckAutoVariables::checkVarLifetimeScope(const Token * start, const Token 
                 tok->scope()->type == Scope::eStruct ||
                 tok->scope()->type == Scope::eUnion) {
                 for (const Function& f:tok->scope()->functionList) {
+                    if (shouldNotAnalyze(f.name()))
+                        continue;
                     if (f.functionScope)
                         checkVarLifetimeScope(f.functionScope->bodyStart, f.functionScope->bodyEnd);
                 }
@@ -682,6 +688,8 @@ void CheckAutoVariables::checkVarLifetime()
     logChecker("CheckAutoVariables::checkVarLifetime");
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         if (!scope->function)
             continue;
         checkVarLifetimeScope(scope->bodyStart, scope->bodyEnd);

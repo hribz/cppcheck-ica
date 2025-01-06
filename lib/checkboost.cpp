@@ -36,6 +36,8 @@ void CheckBoost::checkBoostForeachModification()
     logChecker("CheckBoost::checkBoostForeachModification");
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart->next(); tok && tok != scope->bodyEnd; tok = tok->next()) {
             if (!Token::simpleMatch(tok, "BOOST_FOREACH ("))
                 continue;

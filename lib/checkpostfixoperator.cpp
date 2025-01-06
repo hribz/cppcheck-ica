@@ -53,6 +53,8 @@ void CheckPostfixOperator::postfixOperator()
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
 
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             const Variable *var = tok->variable();
             if (!var || !Token::Match(tok, "%var% ++|--"))

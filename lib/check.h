@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include "errortypes.h"
+#include "symboldatabase.h"
 
 #include <list>
 #include <string>
@@ -126,6 +127,12 @@ public:
         //(void)errorLogger;
         return false;
     }
+    
+    bool shouldNotAnalyze(std::string name);
+
+    bool shouldNotAnalyze(const Function* func);
+
+    bool shouldNotAnalyze(const Scope* scope);
 
 protected:
     static std::string getMessageId(const ValueFlow::Value &value, const char id[]);

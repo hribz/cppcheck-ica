@@ -630,8 +630,8 @@ void Settings::loadFunctions()
     }
 }
 
-bool Settings::shouldAnalyze(std::string name) const {
-    return analyzeFunctionFile.empty() || functionsNeedAnalyze.count(name);
+bool Settings::shouldNotAnalyze(std::string name) const {
+    return !analyzeFunctionFile.empty() && !functionsNeedAnalyze.count(name);
 }
 
 bool Settings::isPremiumEnabled(const char id[]) const

@@ -360,6 +360,8 @@ void CheckType::checkLongCast()
     // Return..
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
 
         // function must return long data
         const Token * def = scope->classDef;

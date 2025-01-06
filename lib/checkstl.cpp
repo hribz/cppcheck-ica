@@ -135,6 +135,8 @@ void CheckStl::outOfBounds()
     logChecker("CheckStl::outOfBounds");
 
     for (const Scope *function : mTokenizer->getSymbolDatabase()->functionScopes) {
+        if (shouldNotAnalyze(function))
+            continue;
         for (const Token *tok = function->bodyStart; tok != function->bodyEnd; tok = tok->next()) {
             const Library::Container *container = getLibraryContainer(tok);
             if (!container || container->stdAssociativeLike)
@@ -321,6 +323,8 @@ void CheckStl::outOfBoundsIndexExpression()
 {
     logChecker("CheckStl::outOfBoundsIndexExpression");
     for (const Scope *function : mTokenizer->getSymbolDatabase()->functionScopes) {
+        if (shouldNotAnalyze(function))
+            continue;
         for (const Token *tok = function->bodyStart; tok != function->bodyEnd; tok = tok->next()) {
             if (!tok->isName() || !tok->valueType())
                 continue;
@@ -799,6 +803,8 @@ void CheckStl::mismatchingContainers()
     // Check if different containers are used in various calls of standard functions
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (Token::Match(tok, "%comp%|-")) {
                 if (checkIteratorPair(tok->astOperand1(), tok->astOperand2()))
@@ -859,6 +865,8 @@ void CheckStl::mismatchingContainerIterator()
     // Check if different containers are used in various calls of standard functions
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (!astIsContainer(tok))
                 continue;
@@ -1345,6 +1353,8 @@ void CheckStl::negativeIndex()
     // Negative index is out of bounds..
     const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (!Token::Match(tok, "%var% [") || !tok->next()->astOperand2())
                 continue;
@@ -1672,6 +1682,8 @@ void CheckStl::checkFindInsert()
 
     const SymbolDatabase *const symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope *scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (!Token::simpleMatch(tok, "if ("))
                 continue;
@@ -1753,6 +1765,8 @@ void CheckStl::size()
 
     const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (Token::Match(tok, "%var% . size ( )") ||
                 Token::Match(tok, "%name% . %var% . size ( )")) {
@@ -2220,6 +2234,8 @@ void CheckStl::uselessCalls()
 
     const SymbolDatabase* symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
             if (printWarning && Token::Match(tok, "%var% . compare|find|rfind|find_first_not_of|find_first_of|find_last_not_of|find_last_of ( %name% [,)]") &&
                 tok->varId() == tok->tokAt(4)->varId()) {
@@ -2876,6 +2892,8 @@ void CheckStl::useStlAlgorithm()
     };
 
     for (const Scope *function : mTokenizer->getSymbolDatabase()->functionScopes) {
+        if (shouldNotAnalyze(function))
+            continue;
         for (const Token *tok = function->bodyStart; tok != function->bodyEnd; tok = tok->next()) {
             // Parse range-based for loop
             if (!Token::simpleMatch(tok, "for ("))
@@ -3094,6 +3112,8 @@ void CheckStl::knownEmptyContainer()
         return;
     logChecker("CheckStl::knownEmptyContainer"); // style
     for (const Scope *function : mTokenizer->getSymbolDatabase()->functionScopes) {
+        if (shouldNotAnalyze(function))
+            continue;
         for (const Token *tok = function->bodyStart; tok != function->bodyEnd; tok = tok->next()) {
 
             if (!Token::Match(tok, "%name% ( !!)"))
@@ -3180,6 +3200,8 @@ void CheckStl::eraseIteratorOutOfBounds()
 {
     logChecker("CheckStl::eraseIteratorOutOfBounds");
     for (const Scope *function : mTokenizer->getSymbolDatabase()->functionScopes) {
+        if (shouldNotAnalyze(function))
+            continue;
         for (const Token *tok = function->bodyStart; tok != function->bodyEnd; tok = tok->next()) {
 
             if (!tok->valueType())
@@ -3243,6 +3265,8 @@ void CheckStl::checkMutexes()
         return;
     logChecker("CheckStl::checkMutexes"); // warning
     for (const Scope *function : mTokenizer->getSymbolDatabase()->functionScopes) {
+        if (shouldNotAnalyze(function))
+            continue;
         std::set<nonneg int> checkedVars;
         for (const Token *tok = function->bodyStart; tok != function->bodyEnd; tok = tok->next()) {
             if (!Token::Match(tok, "%var%"))

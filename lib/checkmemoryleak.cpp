@@ -434,6 +434,8 @@ void CheckMemoryLeakInFunction::checkReallocUsage()
     // only check functions
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
 
         // Search for the "var = realloc(var, 100" pattern within this function
         for (const Token *tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
@@ -543,6 +545,8 @@ void CheckMemoryLeakInClass::variable(const Scope *scope, const Token *tokVarnam
 
     // Inspect member functions
     for (const Function &func : scope->functionList) {
+        if (shouldNotAnalyze(func.name()))
+            continue;
         const bool constructor = func.isConstructor();
         const bool destructor = func.isDestructor();
         if (!func.hasBody()) {
@@ -661,6 +665,8 @@ void CheckMemoryLeakInClass::checkPublicFunctions(const Scope *scope, const Toke
     // Parse public functions..
     // If they allocate member variables, they should also deallocate
     for (const Function &func : scope->functionList) {
+        if (shouldNotAnalyze(func.name()))
+            continue;
         if ((func.type == Function::eFunction || func.type == Function::eOperatorEqual) &&
             func.access == AccessControl::Public && func.hasBody()) {
             const Token *tok2 = func.functionScope->bodyStart->next();
@@ -940,6 +946,8 @@ void CheckMemoryLeakNoVar::check()
 
     // only check functions
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
 
         // Checks if a call to an allocation function like malloc() is made and its return value is not assigned.
         checkForUnusedReturnValue(scope);

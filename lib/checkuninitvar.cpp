@@ -1625,6 +1625,8 @@ void CheckUninitVar::valueFlowUninit()
     for (const bool subfunction : {false, true}) {
         // check every executable scope
         for (const Scope* scope : symbolDatabase->functionScopes) {
+            if (shouldNotAnalyze(scope))
+                continue;
             for (const Token* tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
                 if (isUnevaluated(tok)) {
                     tok = tok->linkAt(1);

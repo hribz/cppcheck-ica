@@ -92,6 +92,8 @@ void CheckOther::checkCastIntToCharAndBack()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         std::map<int, std::string> vars;
         for (const Token* tok = scope->bodyStart->next(); tok && tok != scope->bodyEnd; tok = tok->next()) {
             // Quick check to see if any of the matches below have any chances
@@ -162,6 +164,8 @@ void CheckOther::clarifyCalculation()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             // ? operator where lhs is arithmetical expression
             if (tok->str() != "?" || !tok->astOperand1() || !tok->astOperand1()->isCalculation())
@@ -233,6 +237,8 @@ void CheckOther::clarifyStatement()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart; tok && tok != scope->bodyEnd; tok = tok->next()) {
             if (tok->astOperand1() && Token::Match(tok, "* %name%")) {
                 const Token *tok2 = tok->previous();
@@ -307,6 +313,8 @@ void CheckOther::warningOldStylePointerCast()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         const Token* tok;
         if (scope->function && scope->function->isConstructor())
             tok = scope->classDef;
@@ -376,6 +384,8 @@ void CheckOther::suspiciousFloatingPointCast()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         const Token* tok = scope->bodyStart;
         if (scope->function && scope->function->isConstructor())
             tok = scope->classDef;
@@ -438,6 +448,8 @@ void CheckOther::invalidPointerCast()
     const bool printInconclusive = mSettings->certainty.isEnabled(Certainty::inconclusive);
     const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             const Token* toTok = nullptr;
             const Token* fromTok = nullptr;
@@ -492,6 +504,8 @@ void CheckOther::checkRedundantAssignment()
 
     const SymbolDatabase* symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope *scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         if (!scope->bodyStart)
             continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
@@ -871,6 +885,8 @@ void CheckOther::checkUnreachableCode()
     const bool printInconclusive = mSettings->certainty.isEnabled(Certainty::inconclusive);
     const SymbolDatabase* symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart; tok && tok != scope->bodyEnd; tok = tok->next()) {
             const Token* secondBreak = nullptr;
             const Token* labelName = nullptr;
@@ -1846,6 +1862,8 @@ void CheckOther::checkCharVariable()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
             if (Token::Match(tok, "%var% [")) {
                 if (!tok->variable())
@@ -2298,6 +2316,8 @@ void CheckOther::checkMisusedScopedObject()
     const SymbolDatabase* const symbolDatabase = mTokenizer->getSymbolDatabase();
     std::string typeStr;
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart; tok && tok != scope->bodyEnd; tok = tok->next()) {
             const Token* ctorTok = getConstructorTok(tok, typeStr);
             if (ctorTok && (((ctorTok->type() || ctorTok->isStandardType() || (ctorTok->function() && ctorTok->function()->isConstructor())) // TODO: The rhs of || should be removed; It is a workaround for a symboldatabase bug
@@ -2462,6 +2482,8 @@ void CheckOther::checkInvalidFree()
     const bool printInconclusive = mSettings->certainty.isEnabled(Certainty::inconclusive);
     const SymbolDatabase* symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok && tok != scope->bodyEnd; tok = tok->next()) {
 
             // Keep track of which variables were assigned addresses to newly-allocated memory
@@ -2594,6 +2616,8 @@ void CheckOther::checkDuplicateExpression()
     getConstFunctions(symbolDatabase, constFunctions);
 
     for (const Scope *scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token *tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
             if (tok->str() == "=" && Token::Match(tok->astOperand1(), "%var%")) {
                 const Token * endStatement = Token::findsimplematch(tok, ";");
@@ -2856,6 +2880,8 @@ void CheckOther::checkComparisonFunctionIsAlwaysTrueOrFalse()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (tok->isName() && Token::Match(tok, "isgreater|isless|islessgreater|isgreaterequal|islessequal ( %var% , %var% )")) {
                 const int varidLeft = tok->tokAt(2)->varId();// get the left varid
@@ -2902,6 +2928,8 @@ void CheckOther::checkSignOfUnsignedVariable()
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
 
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         // check all the code in the function
         for (const Token *tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             const ValueFlow::Value *zeroValue = nullptr;
@@ -3170,6 +3198,8 @@ void CheckOther::checkIncompleteArrayFill()
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
 
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart->next(); tok != scope->bodyEnd; tok = tok->next()) {
             if (Token::Match(tok, "memset|memcpy|memmove (") && Token::Match(tok->linkAt(1)->tokAt(-2), ", %num% )")) {
                 const Token* tok2 = tok->tokAt(2);
@@ -3231,6 +3261,8 @@ void CheckOther::checkVarFuncNullUB()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         for (const Token* tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
             // Is NULL passed to a function?
             if (Token::Match(tok,"[(,] NULL [,)]")) {
@@ -3408,6 +3440,8 @@ void CheckOther::checkUnusedLabel()
 
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         const bool hasIfdef = mTokenizer->hasIfdef(scope->bodyStart, scope->bodyEnd);
         for (const Token* tok = scope->bodyStart; tok != scope->bodyEnd; tok = tok->next()) {
             if (!tok->scope()->isExecutable())
@@ -3521,6 +3555,8 @@ void CheckOther::checkEvaluationOrder()
     logChecker("CheckOther::checkEvaluationOrder");
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * functionScope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(functionScope))
+            continue;
         for (const Token* tok = functionScope->bodyStart; tok != functionScope->bodyEnd; tok = tok->next()) {
             if (!tok->isIncDecOp() && !tok->isAssignmentOp())
                 continue;
@@ -3595,6 +3631,8 @@ void CheckOther::checkAccessOfMovedVariable()
     const bool reportInconclusive = mSettings->certainty.isEnabled(Certainty::inconclusive);
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope * scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         const Token * scopeStart = scope->bodyStart;
         if (scope->function) {
             const Token * memberInitializationStart = scope->function->constructorMemberInitialization();
@@ -3675,6 +3713,8 @@ void CheckOther::checkFuncArgNamesDifferent()
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     // check every function
     for (const Scope *scope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(scope))
+            continue;
         const Function * function = scope->function;
         // only check functions with arguments
         if (!function || function->argCount() == 0)
@@ -3894,6 +3934,8 @@ void CheckOther::checkKnownArgument()
     logChecker("CheckOther::checkKnownArgument"); // style
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope *functionScope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(functionScope))
+            continue;
         for (const Token *tok = functionScope->bodyStart; tok != functionScope->bodyEnd; tok = tok->next()) {
             if (!tok->hasKnownIntValue())
                 continue;
@@ -3995,6 +4037,8 @@ void CheckOther::checkKnownPointerToBool()
     logChecker("CheckOther::checkKnownPointerToBool"); // style
     const SymbolDatabase* symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope* functionScope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(functionScope))
+            continue;
         for (const Token* tok = functionScope->bodyStart; tok != functionScope->bodyEnd; tok = tok->next()) {
             if (!tok->hasKnownIntValue())
                 continue;
@@ -4036,6 +4080,8 @@ void CheckOther::checkComparePointers()
     logChecker("CheckOther::checkComparePointers");
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope *functionScope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(functionScope))
+            continue;
         for (const Token *tok = functionScope->bodyStart; tok != functionScope->bodyEnd; tok = tok->next()) {
             if (!Token::Match(tok, "<|>|<=|>=|-"))
                 continue;
@@ -4181,6 +4227,8 @@ void CheckOther::checkOverlappingWrite()
     logChecker("CheckOther::checkOverlappingWrite");
     const SymbolDatabase *symbolDatabase = mTokenizer->getSymbolDatabase();
     for (const Scope *functionScope : symbolDatabase->functionScopes) {
+        if (shouldNotAnalyze(functionScope))
+            continue;
         for (const Token *tok = functionScope->bodyStart; tok != functionScope->bodyEnd; tok = tok->next()) {
             if (tok->isAssignmentOp()) {
                 // check if LHS is a union member..
