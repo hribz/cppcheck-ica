@@ -620,18 +620,27 @@ static const std::set<std::string> misracpp2023Checkers{
 
 void Settings::loadFunctions() 
 {
+    functionsNeedAnalyzeInFile = nullptr;
     if (!analyzeFunctionFile.empty()) {
         std::ifstream f(analyzeFunctionFile);
-        std::string line;
+        std::string line, filename;
         while (std::getline(f, line)) {
-            functionsNeedAnalyze.insert(line);
+            if (line.empty())
+                continue;
+            if (line.back() == ':') {
+                filename = line.substr(0, line.size()-1);
+                functionsNeedAnalyze[filename] = {};
+                continue;
+            } else if (!filename.empty()) {
+                functionsNeedAnalyze.at(filename).insert(line);
+            }
         }
         f.close();
     }
 }
 
 bool Settings::shouldNotAnalyze(std::string name) const {
-    return !analyzeFunctionFile.empty() && !functionsNeedAnalyze.count(name);
+    return functionsNeedAnalyzeInFile && !functionsNeedAnalyzeInFile->count(name);
 }
 
 bool Settings::isPremiumEnabled(const char id[]) const

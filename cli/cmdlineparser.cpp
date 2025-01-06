@@ -1412,18 +1412,13 @@ CmdLineParser::Result CmdLineParser::parseFromArgs(int argc, const char* const a
                     std::string message("couldn't open the file: \"");
                     message += filename;
                     message += "\".";
-                    if (std::count(filename.cbegin(), filename.cend(), ',') > 0 ||
-                        std::count(filename.cbegin(), filename.cend(), '.') > 1) {
-                        // If user tried to pass multiple files (we can only guess that)
-                        // e.g. like this: --analyze-function-file=a.txt,b.txt
-                        // print more detailed error message to tell user how he can solve the problem
-                        message += "\nIf you want to pass two files, you can do it e.g. like this:";
-                        message += "\n    cppcheck --analyze-function-file=a.txt --analyze-function-file=b.txt file.cpp";
-                    }
 
                     mLogger.printError(message);
                     return Result::Fail;
                 }
+                std::string message("Only analyze functions recorded in " + filename + " now.");
+                message += "\nPlease make sure the record format satisfy\nfilename.c:\nfunc_name\n";
+                mLogger.printMessage(message);
                 mSettings.analyzeFunctionFile = filename;
             }
 

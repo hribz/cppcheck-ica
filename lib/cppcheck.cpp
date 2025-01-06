@@ -631,6 +631,11 @@ unsigned int CppCheck::checkFile(const FileWithDetails& file, const std::string 
     if (Settings::terminated())
         return mExitCode;
 
+    if (mSettings.functionsNeedAnalyze.count(file.path()))
+        mSettings.functionsNeedAnalyzeInFile = &mSettings.functionsNeedAnalyze.at(file.path());
+    else
+        mSettings.functionsNeedAnalyzeInFile = nullptr;
+
     const Timer fileTotalTimer(mSettings.showtime == SHOWTIME_MODES::SHOWTIME_FILE_TOTAL, file.spath());
 
     if (!mSettings.quiet) {

@@ -242,7 +242,8 @@ public:
 
     /** @brief Only analyze functions provided in --analyze-function-file */
     std::string analyzeFunctionFile;
-    std::unordered_set<std::string> functionsNeedAnalyze;
+    std::unordered_set<std::string> *functionsNeedAnalyzeInFile;
+    std::unordered_map<std::string, std::unordered_set<std::string>> functionsNeedAnalyze;
 
     void loadFunctions();
     bool shouldNotAnalyze(std::string name) const;
