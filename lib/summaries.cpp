@@ -44,8 +44,6 @@ std::string Summaries::create(const Tokenizer &tokenizer, const std::string &cfg
         const Function *f = scope->function;
         if (!f)
             continue;
-        if (!settings.shouldNotAnalyze(f->name()))
-            continue;
 
         // Summarize function
         std::set<std::string> noreturn;

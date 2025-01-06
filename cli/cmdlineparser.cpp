@@ -1416,9 +1416,6 @@ CmdLineParser::Result CmdLineParser::parseFromArgs(int argc, const char* const a
                     mLogger.printError(message);
                     return Result::Fail;
                 }
-                std::string message("Only analyze functions recorded in " + filename + " now.");
-                message += "\nPlease make sure the record format satisfy\nfilename.c:\nfunc_name\n";
-                mLogger.printMessage(message);
                 mSettings.analyzeFunctionFile = filename;
             }
 
@@ -1525,6 +1522,12 @@ void CmdLineParser::printHelp() const
         "                         addon json files or through this command line option.\n"
         "                         If not present, Cppcheck will try \"python3\" first and\n"
         "                         then \"python\".\n"
+        "    --analyze-function-file=<file>\n"
+        "                         You can specify the functions need to be analyzed in\n"
+        "                         the file. File format as follows:\n"
+        "                          filename:\n"
+        "                          funcname1\n"
+        "                          funcname2\n"
         "    --cppcheck-build-dir=<dir>\n"
         "                         Cppcheck work folder. Advantages:\n"
         "                          * whole program analysis\n"
